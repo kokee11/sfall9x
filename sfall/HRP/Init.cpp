@@ -4,10 +4,6 @@
  *
  */
 
-#pragma comment(lib, "psapi.lib")
-
-#include <psapi.h>
-
 #include "..\main.h"
 #include "..\FalloutEngine\Fallout2.h"
 #include "..\Translate.h"
@@ -67,9 +63,8 @@ static void GetHRPModule() {
 bool Setting::CheckExternalPatch() {
 	bool isEnabled = (*(DWORD*)0x4E4480 != 0x278805C7); // check if Mash's HRP is enabled
 	if (isEnabled) {
-		GetHRPModule();
-		MODULEINFO info;
-		if (baseDLLAddr && GetModuleInformation(GetCurrentProcess(), (HMODULE)baseDLLAddr, &info, sizeof(info)) && info.SizeOfImage >= 0x39940 + 7) {
+		GetHRPModule();		
+		if (baseDLLAddr) {
 			if (sf::GetByteHRPValue(HRP_VAR_VERSION_STR + 7) == 0 && std::strncmp((const char*)GetAddress(HRP_VAR_VERSION_STR), "4.1.8", 5) == 0) {
 				VersionIsValid = true;
 			}
@@ -99,6 +94,25 @@ static std::string GetBackupFileName(const char* runFileName, bool wait) {
 }
 
 static bool DisableExtHRP(const char* runFileName, std::string &cmdline) {
+
+	DWORD v = GetVersion();
+	DWORD nt = 0;
+	if (v < 0x80000000)
+		nt = 1;
+
+	if (!nt)
+	{
+		char buf[MAX_PATH];
+		sprintf(buf, "%s.bak", runFileName);
+		CopyFileA(runFileName, buf, true);
+		ZeroMemory(buf, MAX_PATH);
+		sprintf(buf, "sfall9x \"%s\"", runFileName);
+
+		ShellExecuteA(0, 0, "9xdemash.exe", buf, 0, SW_HIDE); // demashify on win9x
+
+		ExitProcess(EXIT_SUCCESS);		
+	}
+
 	std::string bakExeName = std::move(GetBackupFileName(runFileName, false));
 	if (bakExeName.empty()) return false;
 
@@ -188,21 +202,28 @@ void Setting::init(const char* exeFileName, std::string &cmdline) {
 	if (!hiResMode) return;
 
 	if (Setting::ExternalEnabled()) {
-		char infoMsg[512];
-		sf::Translate::Get("sfall", "HiResInfo",
-			"This version of sfall has its own integrated High Resolution Patch mode, which is compatible with the settings of the High Resolution Patch by Mash.\n\n"
-			"If you want to continue using the Hi-Res Patch by Mash without seeing this message, disable the 'HiResMode' option in ddraw.ini.\n"
-			"Or you can disable the external Hi-Res Patch to get new graphics improvements from sfall.\n\n"
-			"Do you want to disable the High Resolution Patch by Mash?", infoMsg, 512);
-
-		// replace \n for translated message
-		for (size_t i = 0; i < sizeof(infoMsg); i++) {
-			if (infoMsg[i] == '\n' || infoMsg[i] == '\0') break;
-			if (infoMsg[i] == '\\' && infoMsg[i + 1] == 'n') {
-				infoMsg[i] = ' ';
-				infoMsg[++i] = '\n';
+		char infoMsg[512];		
+		char buf[512] = "This version of sfall has its own integrated High Resolution Patch mode, which is compatible with the settings of the High Resolution Patch by Mash. \n \n"
+			"If you want to continue using the Hi-Res Patch by Mash without seeing this message, disable the 'HiResMode' option in ddraw.ini. \n"
+			"Or you can disable the external Hi-Res Patch to get new graphics improvements from sfall. \n \n"
+			"Do you want to disable the High Resolution Patch by Mash?";
+		sf::Translate::Get("sfall", "HiResInfo", "", infoMsg, 512);
+		// win9x MessageBoxA formatting slightly different from NT, for the sake of simplicity default message formatting divorced from translated message
+		if (infoMsg[0] != '\0')	{
+			// replace \n for translated message
+			for (size_t i = 0; i < sizeof(infoMsg); i++) {
+				if (infoMsg[i] == '\n' || infoMsg[i] == '\0') break;
+				if (infoMsg[i] == '\\' && infoMsg[i + 1] == 'n') {
+					infoMsg[i] = ' ';
+					infoMsg[++i] = '\n';
+				}
 			}
 		}
+		else {
+			ZeroMemory(infoMsg, sizeof(infoMsg));
+			CopyMemory(infoMsg, buf, sizeof(buf));
+		}		
+
 		if (MessageBoxA(0, infoMsg, "sfall: Conflict of High Resolution patches", MB_TASKMODAL | MB_ICONWARNING | MB_YESNO) == IDYES) {
 			if (!DisableExtHRP(exeFileName, cmdline)) {
 				MessageBoxA(0, "An error occurred while trying to deactivate the High Resolution Patch.", "sfall", MB_TASKMODAL | MB_ICONERROR);

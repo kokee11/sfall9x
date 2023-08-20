@@ -10,6 +10,8 @@
 #include "..\..\Modules\Graphics.h"
 #include "..\..\Modules\SubModules\WindowRender.h"
 
+#include "..\..\Kernel\cpuid.h"
+
 #include "render.h"
 
 namespace game
@@ -24,7 +26,7 @@ static BYTE* GetBuffer() {
 }
 
 static void Draw(fo::Window* win, BYTE* surface, long width, long height, long widthFrom, BYTE* toBuffer, long toWidth, RECT &rect, RECT* updateRect) {
-	auto drawFunc = (win->flags & fo::WinFlags::Transparent && win->wID) ? fo::func::trans_buf_to_buf : fo::func::buf_to_buf;
+	fo::func::PFN_BUF_TO_BUF drawFunc = (win->flags & fo::WinFlags::Transparent && win->wID) ? fo::func::trans_buf_to_buf : fo::func::buf_to_buf;
 	if (toBuffer) {
 		drawFunc(surface, width, height, widthFrom, &toBuffer[rect.left - updateRect->left] + ((rect.top - updateRect->top) * toWidth), toWidth);
 	} else {
@@ -176,6 +178,23 @@ static __declspec(naked) void GNW_win_refresh_hack() {
 }
 
 void Render::init() {
+	bool sse = true;
+	uint32_t flags_eax, flags_ebx, flags_ecx, flags_edx;
+
+	if (cpu_have_cpuid()) 
+	{
+		cpuinfo_x86(1, &flags_eax, &flags_ebx, &flags_ecx, &flags_edx);
+		sse = (flags_edx & FLAC__CPUINFO_X86_CPUID_SSE) ? true : false;
+	}
+	else
+		sse = false;
+
+	fo::func::buf_to_buf = static_cast<fo::func::PFN_BUF_TO_BUF>(fo::func::buf_to_buf_mmx);
+	fo::func::trans_buf_to_buf = static_cast<fo::func::PFN_BUF_TO_BUF>(fo::func::trans_buf_to_buf_mmx);
+
+	if (sse)
+		fo::func::buf_to_buf = static_cast<fo::func::PFN_BUF_TO_BUF>(fo::func::buf_to_buf_sse);		
+	
 	// Replace the srcCopy_ function with a pure SSE implementation
 	sf::MakeJump(fo::funcoffs::buf_to_buf_, fo::func::buf_to_buf); // 0x4D36D4
 	// Replace the transSrcCopy_ function

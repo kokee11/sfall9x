@@ -97,6 +97,9 @@ static bool CheckExtraCRC(DWORD crc) {
 bool CRC(const char* filepath) {
 	char buf[512];
 
+	// disable CRC check, in Win9x LoadLibrary(ddraw) is hexedited
+	return true;
+
 	HANDLE h = CreateFileA(filepath, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
 	if (h == INVALID_HANDLE_VALUE) {
 		ExitMessageFail("Cannot open the game executable for CRC check.");

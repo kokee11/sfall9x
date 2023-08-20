@@ -215,7 +215,7 @@ static void ResetDevice(bool create) {
 		bool A8IsSupported = Graphics::GPUBlt && (d3d9Device->CreateTexture(ResWidth, ResHeight, 1, 0, D3DFMT_A8, D3DPOOL_SYSTEMMEM, &mainTex, 0) == D3D_OK);
 
 		if (Graphics::GPUBlt) {
-			const BYTE* shader = (A8IsSupported) ? gpuEffectA8 : gpuEffectL8;
+			const DWORD* shader = (A8IsSupported) ? gpuEffectA8 : gpuEffectL8;
 			const UINT size = (A8IsSupported) ? sizeof(gpuEffectA8) : sizeof(gpuEffectL8);
 			if (D3DXCreateEffect(d3d9Device, shader, size, 0, 0, 0, 0, &gpuBltEffect, 0) == D3D_OK) {
 				gpuBltMainTex = gpuBltEffect->GetParameterByName(0, "image");
@@ -1258,7 +1258,7 @@ void Graphics::init() {
 
 	if (Graphics::mode >= 4) {
 		dlog("Applying DX9 graphics patch.", DL_INIT);
-#define _DLL_NAME "d3dx9_43.dll"
+#define _DLL_NAME "d3dx9_31.dll"
 		HMODULE h = LoadLibraryExA(_DLL_NAME, 0, LOAD_LIBRARY_AS_DATAFILE);
 		if (!h) {
 			dlogr(" Failed", DL_INIT);

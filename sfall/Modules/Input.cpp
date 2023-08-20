@@ -28,10 +28,21 @@ namespace sfall
 {
 
 void Input::init() {
+	extern ddrawDll ddraw;
+	char buf[MAX_PATH] = "";
+	GetModuleFileNameA(ddraw.sfall, buf, MAX_PATH);
+
+	char* pos = strrchr(buf, (int) ('\\'));
+	pos++;
+	int len = strlen(pos);
+
 	//if (IniReader::GetConfigInt("Input", "Enable", 0)) {
-		dlogr("Applying input patch.", DL_INIT);
-		SafeWriteStr(0x50FB70, "ddraw.dll");
-		::sfall::availableGlobalScriptTypes |= 1;
+	dlogr("Applying input patch.", DL_INIT);
+	if (len == 9)
+		SafeWriteStr(0x50FB70, pos); // Replace LoadLibrary(dinput.dll) with our module's name, which under win9x is not ddraw.dll
+	else
+		SafeWriteStr(0x50FB70, "DDRAW.DLL");
+	::sfall::availableGlobalScriptTypes |= 1;
 	//}
 }
 

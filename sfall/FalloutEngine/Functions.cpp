@@ -26,6 +26,9 @@ namespace fo
 namespace func
 {
 
+PFN_BUF_TO_BUF buf_to_buf = nullptr;
+PFN_BUF_TO_BUF trans_buf_to_buf = nullptr;
+
 // Prints debug message to game debug.log file for develop build
 #ifndef NDEBUG
 void __declspec(naked) dev_printf(const char* fmt, ...) {
@@ -304,7 +307,7 @@ void __fastcall window_trans_cscale(long i_width, long i_height, long s_width, l
 }
 
 // buf_to_buf_ function with pure SSE implementation
-void __cdecl buf_to_buf(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width) {
+void __cdecl buf_to_buf_sse(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width) {
 	if (height <= 0 || width <= 0) return;
 
 	size_t blockCount = width / 64; // 64 bytes
@@ -360,8 +363,74 @@ end:
 	}
 }
 
+// buf_to_buf_ function with pure MMX implementation
+void __cdecl buf_to_buf_mmx(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width) {
+	if (height <= 0 || width <= 0) return;
+
+	size_t blockCount = width / 64; // 64 bytes
+	size_t remainder = width % 64;
+	size_t sizeD = remainder >> 2;
+	size_t sizeB = remainder & 3;
+	size_t s_pitch = src_width - width;
+	size_t d_pitch = dst_width - width;
+
+	__asm {
+		mov  ebx, s_pitch;
+		mov  edx, d_pitch;
+		mov  esi, src;
+		mov  edi, dst;
+		mov  eax, height;
+	startLoop:
+		mov  ecx, blockCount;
+		test ecx, ecx;
+		jz   copySmall;
+	copyBlock: // copies block of 64 bytes
+		movq mm0, [esi];      // movups xmm0, [esi]; // SSE implementation
+		movq mm1, [esi + 8];
+		movq mm2, [esi + 16]; // movups xmm1, [esi + 16];
+		movq mm3, [esi + 24];
+		movq mm4, [esi + 32]; // movups xmm2, [esi + 32];
+		movq mm5, [esi + 40];
+		movq mm6, [esi + 48]; // movups xmm3, [esi + 48];
+		movq mm7, [esi + 56];
+		movq[edi], mm0;      // movups [edi], xmm0;
+		movq[edi + 8], mm1;
+		movq[edi + 16], mm2; // movups [edi + 16], xmm1;
+		movq[edi + 24], mm3;
+		movq[edi + 32], mm4; // movups [edi + 32], xmm2;
+		movq[edi + 40], mm5;
+		movq[edi + 48], mm6; // movups [edi + 48], xmm3;
+		movq[edi + 56], mm7;
+		add  esi, 64;
+		lea  edi, [edi + 64];
+		dec  ecx; // blockCount
+		jnz  copyBlock;
+		// copies the remaining bytes
+		mov  ecx, sizeD;
+		rep  movsd;
+		mov  ecx, sizeB;
+		rep  movsb;
+		add  esi, ebx; // s_pitch
+		add  edi, edx; // d_pitch
+		dec  eax;      // height
+		jnz  startLoop;
+		emms;
+		jmp  end;
+	copySmall: // copies the small size data
+		mov  ecx, sizeD;
+		rep  movsd;
+		mov  ecx, sizeB;
+		rep  movsb;
+		add  esi, ebx; // s_pitch
+		add  edi, edx; // d_pitch
+		dec  eax;      // height
+		jnz  copySmall;
+	end:
+	}
+}
+
 // trans_buf_to_buf_ function implementation
-void __cdecl trans_buf_to_buf(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width) {
+void __cdecl trans_buf_to_buf_mmx(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width) {
 	if (height <= 0 || width <= 0) return;
 
 	size_t blockCount = width >> 3;

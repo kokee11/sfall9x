@@ -37,6 +37,9 @@
     <Filter Include="HLSL">
       <UniqueIdentifier>{2fe2bab1-d5fc-4986-bd21-cbf61eabbd34}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Kernel">
+      <UniqueIdentifier>{f482b6a6-0b75-469f-a7f7-976fa2f2669a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
@@ -452,6 +455,12 @@
     <ClInclude Include="HLSL\L8PixelShader.h">
       <Filter>HLSL</Filter>
     </ClInclude>
+    <ClInclude Include="Kernel\kernel32.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="Kernel\cpuid.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -824,6 +833,12 @@
     <ClCompile Include="Modules\SubModules\DirectDraw.cpp">
       <Filter>Modules\SubModules</Filter>
     </ClCompile>
+    <ClCompile Include="Kernel\kernel32.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Kernel\cpuid.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />
@@ -838,5 +853,10 @@
     <FxCompile Include="HLSL\L8PixelShader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Kernel\kernel32.asm">
+      <Filter>Kernel</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

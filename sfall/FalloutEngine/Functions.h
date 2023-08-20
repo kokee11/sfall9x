@@ -36,6 +36,11 @@ void dev_printf(const char* fmt, ...);
 void dev_printf(...);
 #endif
 
+typedef void(__cdecl *PFN_BUF_TO_BUF)(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width);
+
+extern PFN_BUF_TO_BUF buf_to_buf;
+extern PFN_BUF_TO_BUF trans_buf_to_buf;
+
 /*
 	Add functions here if they have non-trivial wrapper implementation (like vararg functions or too many arguments, etc.)
 	Otherwise use Functions_def.h file (much easier).
@@ -78,11 +83,12 @@ void __fastcall displayInWindow(long w_here, long width, long height, void* data
 // draws an image to the buffer of the active script window
 void __fastcall window_trans_cscale(long i_width, long i_height, long s_width, long s_height, long xy_shift, long w_width, void* data);
 
-// buf_to_buf_ function with pure SSE implementation
-void __cdecl buf_to_buf(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width);
+// buf_to_buf_ function with pure SSE/MMX implementation
+void __cdecl buf_to_buf_sse(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width);
+void __cdecl buf_to_buf_mmx(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width);
 
 // trans_buf_to_buf_ function implementation
-void __cdecl trans_buf_to_buf(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width);
+void __cdecl trans_buf_to_buf_mmx(BYTE* src, long width, long height, long src_width, BYTE* dst, long dst_width);
 
 BYTE* __fastcall loadPCX(const char* file, long* width, long* height);
 
