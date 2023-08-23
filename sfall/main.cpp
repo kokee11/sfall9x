@@ -87,6 +87,7 @@
 #include "HRP\Init.h"
 
 ddrawDll ddraw;
+static bool LoadOriginalDll(DWORD);
 
 namespace sfall
 {
@@ -202,6 +203,9 @@ static int CheckEXE() {
 
 static HMODULE SfallInit() {
 	char filepath[MAX_PATH];
+
+	LoadOriginalDll(DLL_PROCESS_ATTACH);
+
 	GetModuleFileName(0, filepath, MAX_PATH);
 
 	SetCursor(LoadCursorA(0, IDC_ARROW));
@@ -334,11 +338,14 @@ static bool LoadOriginalDll(DWORD fdwReason) {
 }
 
 bool __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved) {
-	if (LoadOriginalDll(fdwReason)) {
+	if (fdwReason == DLL_PROCESS_ATTACH)
+	{
 		if (sfall::CheckEXE()) {
 			ddraw.sfall = hinstDLL;
 			sfall::MakeCall(0x4DE8DE, sfall::SfallInit); // LoadDirectX_
 		}
 	}
+	else
+		LoadOriginalDll(fdwReason);
 	return true;
 }

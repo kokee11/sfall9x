@@ -23,7 +23,7 @@ __Windows 98/ME__:
 5. Rename sfall9x's `ddraw.dll` to `ggraw.dll`
 6. You can now play the game.  
 
->NOTE:  sfall should run on a Pentium II CPU and higher. Additionally, DX9 mode requires GPU acceleration.  
+>NOTE:  sfall should run on Pentium II and higher. Additionally, DX9 mode requires GPU acceleration.  
 
 ## Compiling
 The .dll was compiled on Visual Studio 2015 with the v140_xp compiler and linked against October 2006 DirectX SDK. Assuming you have the `Visual Studio`, the `v140_xp compiler` and the `DXSDK` installed:  
