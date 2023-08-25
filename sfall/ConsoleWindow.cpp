@@ -37,7 +37,7 @@ static constexpr char* IniPositionKey = "ConsoleWindowData";
 static constexpr char* IniCodePageKey = "ConsoleCodePage";
 
 bool ConsoleWindow::tryGetWindow(HWND* wnd) {
-	*wnd = GetConsoleWindow();
+	*wnd = FindWindowA(NULL, "sfalldbg");
 	if (!*wnd) {
 		dlogr("Error getting console window.", DL_MAIN);
 		return false;
@@ -144,6 +144,7 @@ void ConsoleWindow::init() {
 	if (cp > 0) SetConsoleOutputCP(cp);
 
 	freopen("CONOUT$", "w", stdout); // this allows to print to console via std::cout
+	SetConsoleTitleA("sfalldbg");
 
 	if (_mode & Source::GAME) {
 		std::cout << "Displaying debug_printf output.\n";
