@@ -326,7 +326,10 @@ long __declspec(naked) Worldmap::AreaMarkStateIsNoRadius() {
 		jne  skip;
 		mov  esi, 1; // revert value to town known state
 skip:
-		cmove eax, esi; // eax: 1 for Fallout 1 behavior
+		jne cmov0;
+		mov eax, esi; // eax: 1 for Fallout 1 behavior
+		//cmove eax, esi; // eax: 1 for Fallout 1 behavior
+cmov0:
 		retn;
 	}
 }

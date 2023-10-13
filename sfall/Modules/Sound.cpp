@@ -556,7 +556,10 @@ static void __declspec(naked) soundLoad_hook_B() {
 	__asm {
 		xor  ebp, ebp;
 		cmp  dword ptr [esp + 16 + 4], 0x46620D + 5; // called from soundStartInterpret_ (op_soundplay_)
-		cmovne ebp, ebx;
+		je cmov0;
+		mov ebp, ebx;
+		//cmovne ebp, ebx;
+cmov0:
 		mov  acmSoundData, ebp;
 		retn;
 	}
@@ -922,7 +925,10 @@ rawFile:
 		xor  edx, edx;
 		mov  eax, ds:[FO_VAR_sndfx_volume];
 		sub  ax, bx;    // reduce volume
-		cmovg edx, eax; // volume > 0
+		jng cmov0;
+		mov edx, eax; // volume > 0
+		//cmovg edx, eax; // volume > 0
+cmov0:
 		mov  eax, ebp;
 		jmp  fo::funcoffs::soundVolume_; // set sfx volume
 	}

@@ -814,7 +814,10 @@ static void __declspec(naked) HeaveHoHook() {
 		lea  ebx, [0 + eax * 4];
 		sub  ebx, eax;      // ST * 3
 		cmp  ebx, esi;      // ebx = dist (3*ST), esi = max dist weapon
-		cmovg ebx, esi;     // if dist > max then dist = max
+		jng cmov0;
+		mov ebx, esi;     // if dist > max then dist = max
+		//cmovg ebx, esi;     // if dist > max then dist = max
+cmov0:
 		mov  eax, ecx;
 		mov  edx, PERK_heave_ho;
 		call fo::funcoffs::perk_level_;

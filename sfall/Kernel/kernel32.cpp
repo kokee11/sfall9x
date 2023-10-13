@@ -17,6 +17,7 @@ static PVOID WINAPI __EncodePointer(PVOID);
 static PSLIST_ENTRY WINAPI __InterlockedFlushSList(PSLIST_HEADER);
 static BOOL WINAPI __MoveFileExW(LPCWSTR, LPCWSTR, DWORD);
 static BOOL WINAPI __MoveFileExA(LPCSTR, LPCSTR, DWORD);
+static BOOL WINAPI __IsProcessorFeaturePresent(DWORD);
 
 typedef VOID(WINAPI *PFN_INITIALIZESLISTHEAD)(PSLIST_HEADER);
 typedef BOOL(WINAPI *PFN_GETMODULEHANDLEEXW)(DWORD, LPCWSTR, HMODULE*);
@@ -27,6 +28,7 @@ typedef PSLIST_ENTRY(WINAPI *PFN_INTERLOCKEDFLUSHSLIST)(PSLIST_HEADER);
 typedef BOOL(WINAPI *PFN_MOVEFILEEXW)(LPCWSTR, LPCWSTR, DWORD);
 typedef BOOL(WINAPI *PFN_MOVEFILEEXA)(LPCSTR, LPCSTR, DWORD);
 typedef BOOL(WINAPI *PFN_INITIALIZECRITICALSECTIONANDSPINCOUNT)(LPCRITICAL_SECTION, DWORD);
+typedef BOOL(WINAPI* PFN_ISPROCESSORFEATUREPRESENT)(DWORD);
 
 static PFN_INITIALIZESLISTHEAD pfnInitializeSListHead = nullptr;
 static PFN_GETMODULEHANDLEEXW pfnGetModuleHandleExW = nullptr;
@@ -37,6 +39,27 @@ static PFN_INTERLOCKEDFLUSHSLIST pfnInterlockedFlushSList = nullptr;
 static PFN_MOVEFILEEXW pfnMoveFileExW = nullptr;
 static PFN_MOVEFILEEXA pfnMoveFileExA = nullptr;
 static PFN_INITIALIZECRITICALSECTIONANDSPINCOUNT pfnInitializeCriticalSectionAndSpinCount = nullptr;
+static PFN_ISPROCESSORFEATUREPRESENT pfnIsProcessorFeaturePresent = nullptr;
+
+extern "C" BOOL WINAPI
+LibIsProcessorFeaturePresent(DWORD ProcessorFeature)
+{
+
+	if (!pfnIsProcessorFeaturePresent)
+	{
+		HMODULE hKernel32 = GetModuleHandleA("kernel32");
+		pfnIsProcessorFeaturePresent = reinterpret_cast<PFN_ISPROCESSORFEATUREPRESENT>(GetProcAddress(hKernel32, "IsProcessorFeaturePresent"));
+
+		// OVERRIDE
+		if (!pfnIsProcessorFeaturePresent)
+			pfnIsProcessorFeaturePresent = __IsProcessorFeaturePresent;
+	}
+
+	// MessageBoxA(NULL, __FUNCTION__" called!", "", MB_OK);
+
+	return pfnIsProcessorFeaturePresent(ProcessorFeature);
+
+}
 
 extern "C" BOOL WINAPI
 LibMoveFileExA(LPCSTR lpExistingFileNameA, LPCSTR lpNewFileNameA, DWORD dwFlags)
@@ -442,4 +465,10 @@ __MoveFileExA(LPCSTR lpExistingFileNameA, LPCSTR lpNewFileNameA, DWORD dwFlags)
 	}
 
 	return fSuccess;
+}
+
+static BOOL WINAPI
+__IsProcessorFeaturePresent(DWORD ProcessorFeature)
+{
+	return FALSE;
 }

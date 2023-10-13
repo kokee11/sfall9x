@@ -334,7 +334,10 @@ static void __declspec(naked) pipboy_hack_action() {
 		mov  ecx, ebx;
 		call ActionButtons;
 		cmp  eax, -1;
-		cmovne ebx, eax; // called_quest_number
+		je cmov0;
+		mov ebx, eax; // called_quest_number
+		//cmovne ebx, eax; // called_quest_number
+cmov0:
 		pop  edx;
 		pop  eax;
 		xor  ecx, ecx;

@@ -505,7 +505,10 @@ static void __declspec(naked) gmovie_play_hack_subpal() {
 		xor eax, eax;
 		lea edx, [ebp * 4];
 		cmp ebp, DEFAULT_MOVIES;
-		cmovb eax, edx;
+		jnb cmov0;
+		mov eax, edx;
+		//cmovb eax, edx;
+cmov0:
 		retn;
 	}
 }
@@ -514,7 +517,10 @@ static void __declspec(naked) op_play_gmovie_hack() {
 	__asm {
 		mov edx, 0xB; // default play mode flags
 		cmp ecx, DEFAULT_MOVIES;
-		cmovb edx, eax;
+		jnb cmov0;
+		mov edx, eax;
+		//cmovb edx, eax;
+cmov0:
 		retn;
 	}
 }

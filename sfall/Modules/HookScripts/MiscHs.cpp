@@ -286,7 +286,10 @@ static void __declspec(naked) SneakCheckHook() {
 		jb   skip;
 		mov  esi, rets[0];
 		mov  ds:[FO_VAR_sneak_working], esi;
-		cmova eax, rets[4]; // override timer
+		jna cmov0;
+		mov eax, rets[4]; // override timer
+		//cmova eax, rets[4]; // override timer
+cmov0:
 skip:
 		HookEnd;
 		jmp  fo::funcoffs::queue_add_;
@@ -456,7 +459,10 @@ static void __declspec(naked) SetGlobalVarHook() {
 		pop  edx;
 		pop  ecx;
 		cmp  eax, edx;             // if return value != set value
-		cmovne edx, eax;
+		je cmov0;
+		mov edx, eax;
+		//cmovne edx, eax;
+cmov0:
 		pop  eax;
 		jmp  fo::funcoffs::game_set_global_var_;
 	}
@@ -503,7 +509,10 @@ static void __declspec(naked) RestTimerLoopHook() {
 		pop  ecx;
 		pop  edx;
 		test eax, eax;   // result >= 0
-		cmovge edi, eax; // return 1 to interrupt resting
+		jnge cmov0;
+		mov edi, eax; // return 1 to interrupt resting
+		//cmovge edi, eax; // return 1 to interrupt resting
+cmov0:
 		pop  eax;
 		jmp  fo::funcoffs::set_game_time_;
 	}
@@ -523,7 +532,10 @@ static void __declspec(naked) RestTimerEscapeHook() {
 		pop  ecx;
 		pop  edx;
 		test eax, eax;   // result >= 0
-		cmovge edi, eax; // return 0 for cancel ESC key
+		jnge cmov0;
+		mov edi, eax; // return 0 for cancel ESC key
+		//cmovge edi, eax; // return 0 for cancel ESC key
+cmov0:
 		pop  eax;
 skip:
 		retn;
@@ -611,7 +623,10 @@ static void __declspec(naked) wmWorldMap_hook() {
 		push 0;
 		call EncounterHook_Script;
 		test eax, eax;
-		cmovl eax, ebx; // restore map if map < 0
+		jnl cmov0;
+		mov eax, ebx; // restore map if map < 0
+		//cmovl eax, ebx; // restore map if map < 0
+cmov0:
 		jmp  fo::funcoffs::map_load_idx_; // eax - map id
 	}
 }

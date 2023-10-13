@@ -786,7 +786,10 @@ static void __declspec(naked) item_total_weight_hack() {
 		cmp eax, dword ptr ds:[FO_VAR_obj_dude]; // eax - source
 		jz  skip;
 		cmp critterBody, eax;                    // if condition is true, then now it's exchanging/bartering with source object
-		cmovz esi, weightOnBody;                 // take the weight of target's equipped items into account
+		jnz cmov0;
+		mov esi, weightOnBody;                 // take the weight of target's equipped items into account
+		//cmovz esi, weightOnBody;                 // take the weight of target's equipped items into account
+cmov0:
 skip:
 		retn;
 	}
@@ -802,7 +805,10 @@ static void __declspec(naked) item_c_curr_size_hack() {
 		cmp eax, dword ptr ds:[FO_VAR_obj_dude]; // eax - source
 		jz  skip;
 		cmp critterBody, eax;                    // if condition is true, then now it's exchanging/bartering with source object
-		cmovz edi, sizeOnBody;                   // take the size of target's equipped items into account
+		jnz cmov0;
+		mov edi, sizeOnBody;                   // take the size of target's equipped items into account
+		//cmovz edi, sizeOnBody;                   // take the size of target's equipped items into account
+cmov0:
 skip:
 		retn;
 	}
@@ -1095,7 +1101,10 @@ static void __declspec(naked) op_critter_state_hack() {
 	__asm {
 		mov  ebx, 2;
 		test eax, DAM_KNOCKOUT_WOKEN;
-		cmovnz esi, ebx;
+		jz cmov0;
+		mov esi, ebx;
+		//cmovnz esi, ebx;
+cmov0:
 		and  eax, (DAM_CRIP_LEG_LEFT or DAM_CRIP_LEG_RIGHT or DAM_CRIP_ARM_LEFT or DAM_CRIP_ARM_RIGHT or DAM_BLIND);
 		retn;
 	}
@@ -1875,7 +1884,10 @@ static void __declspec(naked) ai_best_weapon_hack() {
 	__asm {
 		add  edx, 3;
 		test eax, eax;
-		cmovs eax, edx;
+		jns cmov0;
+		mov eax, edx;
+		//cmovs eax, edx;
+cmov0:		
 		sar  eax, 1;
 		retn;
 	}
@@ -2346,7 +2358,10 @@ static void __declspec(naked) partyFixMultipleMembers_hack() {
 		cmp  eax, OBJ_TYPE_CRITTER;
 		jne  skip;
 		test [esi + damageFlags], DAM_DEAD;
-		cmovnz edx, esi;
+		jz cmov0;
+		mov edx, esi;
+		//cmovnz edx, esi;
+cmov0:
 skip:
 		retn;
 	}
@@ -2563,9 +2578,15 @@ mediumLoc:
 		lea  edx, [edx - 10];
 		// check negative values
 		test  eax, eax;
-		cmovl eax, ecx;
+		jnl cmov0;
+		mov eax, ecx;
+		//cmovl eax, ecx;
+cmov0:
 		test  edx, edx;
-		cmovl edx, ecx;
+		jnl cmov1;
+		mov edx, ecx;
+		//cmovl edx, ecx;
+cmov1:
 largeLoc:
 		mov  ds:[FO_VAR_world_ypos], edx;
 		mov  ds:[FO_VAR_world_xpos], eax;
@@ -2603,9 +2624,15 @@ mediumLoc:
 		push ecx;
 		xor  ecx, ecx;
 		test eax, eax;
-		cmovl eax, ecx;
+		jnl cmov0;
+		mov eax, ecx;
+		//cmovl eax, ecx;
+cmov0:
 		test edx, edx;
-		cmovl edx, ecx;
+		jnl cmov1;
+		mov edx, ecx;
+		//cmovl edx, ecx;
+cmov1:
 		pop  ecx;
 largeLoc:
 		lea  ebx, [esp]; // ppSubTile out
@@ -2659,9 +2686,15 @@ mediumLoc:
 		lea  edx, [edx - 10];
 		// check negative values
 		test eax, eax;
-		cmovl eax, ebx;
+		jnl cmov0;
+		mov eax, ebx;
+		//cmovl eax, ebx;
+cmov0:
 		test edx, edx;
-		cmovl edx, ebx;
+		jnl cmov1;
+		mov edx, ebx;
+		//cmovl edx, ebx;
+cmov1:
 largeLoc:
 		jmp  fo::funcoffs::wmPartyInitWalking_;
 	}
@@ -2959,7 +2992,10 @@ skip0:
 		mov  edx, 60;  // max width
 		mov  ebx, eax; // ebx - textWidth
 		cmp  eax, edx;
-		cmova ebx, edx;
+		jna cmov0;
+		//cmova ebx, edx;
+		mov ebx, edx;
+cmov0:
 		movzx eax, ds:[FO_VAR_GreenColor];
 		or   eax, 0x7000000; // print flags
 		push eax;
@@ -2986,7 +3022,10 @@ static void __declspec(naked) gdReviewDisplay_hack() {
 		mov  ebx, eax;
 		mov  eax, -3;
 		cmp  ebx, 407; // vertical position limit
-		cmovge ecx, eax;
+		jnge cmov0;
+		//cmovge ecx, eax;
+		mov ecx, eax;
+cmov0:
 		cmp  ecx, eax;
 		retn;
 	}
@@ -3022,7 +3061,10 @@ fix:
 jback:
 		xor  ecx, ecx;
 		dec  esi;
-		cmovnz ebp, ecx; // ebp=0 to continue uncovering sub-tiles
+		jz cmov0;
+		//cmovnz ebp, ecx; // ebp=0 to continue uncovering sub-tiles
+		mov ebp, ecx; // ebp=0 to continue uncovering sub-tiles
+cmov0:
 		dec  dword ptr [esp + 0x1C - 0x14]; // subtract one tile from the left
 		jmp  wmSubTileMarkRadiusVisited_Ret;
 checkTiles:
@@ -3080,7 +3122,10 @@ static void __declspec(naked) action_knockback_hack() {
 	__asm {
 		mov  ecx, 20; // cap knockback distance
 		cmp  ebp, ecx;
-		cmovg ebp, ecx;
+		jng cmov0;
+		//cmovg ebp, ecx;
+		mov ebp, ecx;
+cmov0:
 		mov  ecx, 1;
 		retn;
 	}

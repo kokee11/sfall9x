@@ -210,10 +210,16 @@ void __declspec(naked) op_mod_skill_points_per_level() {
 		_GET_ARG_INT(end);
 		mov  ecx, 100;
 		cmp  eax, ecx;
-		cmovg eax, ecx;
+		jng cmov0;
+		mov eax, ecx;
+		//cmovg eax, ecx;
+cmov0:
 		neg  ecx; // -100
 		cmp  eax, ecx;
-		cmovl eax, ecx;
+		jnl cmov1;
+		mov eax, ecx;
+		//cmovl eax, ecx;
+cmov1:
 		add  eax, 5; // add fallout default points
 		push eax;
 		push 0x43C27A;
@@ -296,10 +302,16 @@ void __declspec(naked) op_set_pickpocket_max() {
 		_GET_ARG_INT(end);
 		xor  edx, edx;
 		test eax, eax;
-		cmovs eax, edx;  // max < 0
+		jns cmov0;
+		mov eax, edx;  // max < 0
+		//cmovs eax, edx;  // max < 0
+cmov0:
 		mov  ecx, 999;
 		cmp  eax, ecx;
-		cmova eax, ecx;  // 0 - 999 (maximum)
+		jna cmov1;
+		mov eax, ecx;  // 0 - 999 (maximum)
+		//cmova eax, ecx;  // 0 - 999 (maximum)
+cmov1:
 		push edx;        // mod (0)
 		push eax;        // maximum
 		push 0xFFFFFFFF; // critter
@@ -316,10 +328,16 @@ void __declspec(naked) op_set_hit_chance_max() {
 		_GET_ARG_INT(end);
 		xor  edx, edx;
 		test eax, eax;
-		cmovs eax, edx;  // max < 0
+		jns cmov0;
+		mov eax, edx;  // max < 0
+		//cmovs eax, edx;  // max < 0
+cmov0:
 		mov  ecx, 999;
 		cmp  eax, ecx;
-		cmova eax, ecx;  // 0 - 999 (maximum)
+		jna cmov1;
+		mov eax, ecx;  // 0 - 999 (maximum)
+		//cmova eax, ecx;  // 0 - 999 (maximum)
+cmov1:
 		push edx;        // mod (0)
 		push eax;        // maximum
 		push 0xFFFFFFFF; // critter
@@ -412,7 +430,10 @@ void __declspec(naked) op_set_skill_max() {
 		_GET_ARG_INT(end);
 		mov  ecx, 300;
 		cmp  eax, ecx;
-		cmova eax, ecx; // 0 - 300
+		jna cmov0;
+		mov eax, ecx; // 0 - 300
+		//cmova eax, ecx; // 0 - 300
+cmov0:
 		push eax;
 		push 0xFFFFFFFF;
 		call SetSkillMax;

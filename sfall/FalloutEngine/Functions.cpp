@@ -276,7 +276,10 @@ void __fastcall windowDisplayBuf(long x, long width, long y, long height, void* 
 		mov  eax, data; // from
 		mov  ebx, fo::funcoffs::windowDisplayTransBuf_;
 		cmp  noTrans, 0;
-		cmovnz ebx, fo::funcoffs::windowDisplayBuf_;
+		jz cmov0;
+		mov ebx, fo::funcoffs::windowDisplayBuf_;
+		//cmovnz ebx, fo::funcoffs::windowDisplayBuf_;
+cmov0:
 		call ebx; // *data<eax>, from_width<edx>, unused<ebx>, X<ecx>, Y, width, height
 	}
 }

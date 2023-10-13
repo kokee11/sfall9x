@@ -40,7 +40,10 @@ static void __declspec(naked) RemoveObjHook() {
 	__asm {
 		mov  ecx, [esp + 8]; // call addr
 		cmp  rmObjType, -1;
-		cmovne ecx, rmObjType;
+		je cmov0;
+		mov ecx, rmObjType;
+		//cmovne ecx, rmObjType;
+cmov0:
 		mov  rmObjType, -1;
 		cmp  ecx, -2;
 		je   skipHook;
@@ -51,7 +54,10 @@ static void __declspec(naked) RemoveObjHook() {
 		mov  args[12], ecx;  // RMOBJ_* (called func)
 		xor  esi, esi;
 		xor  ecx, 0x47761D;  // from item_move_func_
-		cmovz esi, ebp;      // target
+		jnz cmov1;
+		mov esi, ebp;      // target
+		//cmovz esi, ebp;      // target
+cmov1:
 		mov  args[16], esi;
 		push eax;
 		push edx;
@@ -89,7 +95,10 @@ static void __declspec(naked) MoveCostHook() {
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		call EndHook;
 		mov  eax, ebx;
 		pop  ecx;

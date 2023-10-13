@@ -97,7 +97,10 @@ tryHeal:
 		mov  edx, dword ptr [esp + 0x34 - 0x1C + 4]; // ai cap
 		mov  edx, [edx + 0x10];                      // min_hp
 		cmp  eax, edx;                               // curr_hp < cap.min_hp
-		cmovl edi, edx;                              // min_hp <- cap.min_hp
+		jnl cmov0;
+		mov edi, edx;                              // min_hp <- cap.min_hp
+		//cmovl edi, edx;                              // min_hp <- cap.min_hp
+cmov0:
 		retn;
 	}
 }
@@ -394,7 +397,10 @@ static void __declspec(naked) ai_try_attack_hook_cost1() {
 	__asm {
 		xor  ebx, ebx;
 		sub  edx, aiReloadCost; // curr.mp - reload cost
-		cmovg ebx, edx;         // if curr.mp > 0
+		jng cmov0;
+		mov ebx, edx;         // if curr.mp > 0
+		//cmovg ebx, edx;         // if curr.mp > 0
+cmov0:
 		retn;
 	}
 }
@@ -403,7 +409,10 @@ static void __declspec(naked) ai_try_attack_hook_cost2() {
 	__asm {
 		xor  ecx, ecx;
 		sub  ebx, aiReloadCost; // curr.mp - reload cost
-		cmovg ecx, ebx;         // if curr.mp > 0
+		jng cmov0;
+		mov ecx, ebx;         // if curr.mp > 0
+		//cmovg ecx, ebx;         // if curr.mp > 0
+cmov0:
 		retn;
 	}
 }
@@ -485,7 +494,10 @@ fix:
 		neg  ebx;
 		mov  eax, [esi + movePoints]; // Current Action Points
 		cmp  ebx, eax;
-		cmovg ebx, eax; // if (distance > ap) dist = ap
+		jng cmov0;
+		mov ebx, eax; // if (distance > ap) dist = ap
+		//cmovg ebx, eax; // if (distance > ap) dist = ap
+cmov0:
 		add  esp, 4;
 		jmp  ai_move_away_hook_Ret;
 	}

@@ -683,7 +683,10 @@ static void __declspec(naked) gmouse_bk_process_hack() {
 		mov  edx, -1; // mode
 		mov  eax, ds:[FO_VAR_gmouse_3d_current_mode];
 		test partyOrderPickTargetLoop, 0xFF;
-		cmovnz eax, edx;
+		jz cmov0;
+		mov eax, edx;
+		//cmovnz eax, edx;
+cmov0:
 		retn;
 	}
 }

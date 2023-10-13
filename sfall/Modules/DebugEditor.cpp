@@ -333,7 +333,10 @@ static void __declspec(naked) art_data_size_hook_check() {
 		mov  eax, ebx; // ebx - FID
 		shr  eax, 16;  // al - animation code (ID2)
 		cmp  al, ANIM_walk;
-		cmove ecx, esi;
+		jne cmov0;
+		mov ecx, esi;
+		//cmove ecx, esi;
+cmov0:
 		retn;
 	}
 }

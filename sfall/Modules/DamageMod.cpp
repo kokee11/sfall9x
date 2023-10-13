@@ -204,7 +204,10 @@ static __declspec(naked) void MeleeDmgDisplayPrintFix_hook() {
 		mov  eax, ds:[FO_VAR_obj_dude];                // Get pointer to PC
 		call fo::funcoffs::stat_get_base_;             // Get Melee Damage w/o bonuses
 		cmp  ecx, eax;                                 // HtH Damage vs Base Melee Damage
-		cmovg eax, ecx;                                // Move back to eax in preparation of push
+		jng cmov0;
+		//cmovg eax, ecx;                                // Move back to eax in preparation of push
+		mov eax, ecx;                                // Move back to eax in preparation of push
+cmov0:
 		retn;
 	}
 }
@@ -224,7 +227,10 @@ static __declspec(naked) void CommonDmgRngDispFix_hook() {
 		mov  eax, ds:[FO_VAR_stack];
 		call fo::funcoffs::stat_get_base_;             // Get Melee Damage w/o bonuses
 		cmp  ebx, eax;                                 // HtH Damage vs Base Melee Damage
-		cmovg eax, ebx;                                // Move back to eax in preparation of push
+		jng cmov0;
+		mov eax, ebx;                                // Move back to eax in preparation of push
+		//cmovg eax, ebx;                                // Move back to eax in preparation of push
+cmov0:		
 		retn;
 	}
 }

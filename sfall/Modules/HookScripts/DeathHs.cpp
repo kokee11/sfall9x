@@ -87,7 +87,10 @@ static void __declspec(naked) CalcDeathAnim2Hook() {
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		call EndHook;
 		mov  eax, ebx;
 		retn;

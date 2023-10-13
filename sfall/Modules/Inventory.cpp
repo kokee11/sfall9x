@@ -611,7 +611,10 @@ static void __declspec(naked) do_move_timer_hack() {
 		mov  ebx, 1;
 		call GetLoopFlags;
 		test eax, BARTER;
-		cmovz ebx, ebp; // set max when not in barter
+		jnz cmov0;
+		mov ebx, ebp; // set max when not in barter
+		//cmovz ebx, ebp; // set max when not in barter
+cmov0:
 		retn;
 	}
 }

@@ -266,7 +266,10 @@ static void __declspec(naked) determine_to_hit_func_hack() {
 		call HitChanceMod;
 		mov  esi, 999; // max
 		cmp  eax, esi;
-		cmovl esi, eax;
+		jnl cmov0;
+		//cmovl esi, eax;
+		mov esi, eax;
+cmov0:
 		retn;
 	}
 }

@@ -238,7 +238,10 @@ static void __declspec(naked) check_registry_hack() {
 		push edx;
 		call CopyRegistry;
 		test eax, eax;
-		cmovnz ebx, eax; // set ebx to the current count of animations to check the next anim_set slot
+		jz cmov0;
+		mov ebx, eax;
+		//cmovnz ebx, eax; // set ebx to the current count of animations to check the next anim_set slot
+cmov0:
 		pop  edx;
 		pop  ecx;
 		// (re)set ZF

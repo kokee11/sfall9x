@@ -35,7 +35,10 @@ return:
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		call EndHook;
 		mov  eax, ebx;
 		pop  ecx;
@@ -60,7 +63,10 @@ static void __declspec(naked) HexAIBlockingHook() {
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		call EndHook;
 		mov  eax, ebx;
 		pop  ecx;
@@ -85,7 +91,10 @@ static void __declspec(naked) HexShootBlockingHook() {
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		call EndHook;
 		mov  eax, ebx;
 		pop  ecx;
@@ -110,7 +119,10 @@ static void __declspec(naked) HexSightBlockingHook() {
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		call EndHook;
 		mov  eax, ebx;
 		pop  ecx;

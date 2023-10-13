@@ -996,7 +996,10 @@ static void __declspec(naked) intface_update_ammo_lights_hack() {
 	__asm {
 		mov  eax, 70; // 70 - full ammo bar
 		cmp  edx, eax;
-		cmovg edx, eax;
+		jng cmov0;
+		mov edx, eax;
+		//cmovg edx, eax;
+cmov0:
 		mov  eax, 463; // overwritten engine code
 		retn;
 	}
@@ -1013,7 +1016,10 @@ fix:
 		dec  edx;     // USE.FRM
 		mov  ecx, 48; // INVBOX.FRM
 		test ebx, ebx;
-		cmovz edx, ecx;
+		jnz cmov0;
+		mov edx, ecx;
+		//cmovz edx, ecx;
+cmov0:
 		xor  ebx, ebx;
 		xor  ecx, ecx;
 		jmp  fo::funcoffs::art_id_;

@@ -254,7 +254,10 @@ static void __declspec(naked) gmouse_scr_offx_map_limit() {
 		retn;
 skip:
 		cmp  rightLimit, eax;
-		cmovb eax, rightLimit;
+		jnb cmov0;
+		mov eax, rightLimit;
+		//cmovb eax, rightLimit;
+cmov0:
 		retn;
 	}
 }

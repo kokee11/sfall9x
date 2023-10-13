@@ -9,6 +9,7 @@ EXTERN _LibEncodePointer@4 : PROC
 EXTERN _LibInterlockedFlushSList@4 : PROC
 EXTERN _LibMoveFileExW@12 : PROC
 EXTERN _LibMoveFileExA@12 : PROC
+EXTERN _LibIsProcessorFeaturePresent@4 : PROC
 
 .data
 
@@ -38,5 +39,8 @@ __imp__MoveFileExW@12 dd _LibMoveFileExW@12
 
 PUBLIC __imp__MoveFileExA@12
 __imp__MoveFileExA@12 dd _LibMoveFileExA@12
+
+PUBLIC __imp__IsProcessorFeaturePresent@4
+__imp__IsProcessorFeaturePresent@4 dd _LibIsProcessorFeaturePresent@4
 
 END

@@ -35,13 +35,22 @@ static void __declspec(naked) ToHitHook() {
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		mov  eax, 999; // max
 		cmp  ebx, eax;
-		cmovg ebx, eax;
+		jng cmov1;
+		mov ebx, eax;
+		//cmovg ebx, eax;
+cmov1:
 		mov  eax, -99; // min
 		cmp  ebx, eax;
-		cmovl ebx, eax;
+		jnl cmov2;
+		mov ebx, eax;
+		//cmovl ebx, eax;
+cmov2:
 		call EndHook;
 		mov  eax, ebx;
 		retn 8;
@@ -128,7 +137,10 @@ static void __declspec(naked) CalcApCostHook() {
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		call EndHook;
 		mov  eax, ebx;
 		pop  ecx;
@@ -155,7 +167,10 @@ static void __declspec(naked) CalcApCostHook2() {
 
 	__asm {
 		cmp  cRet, 1;
-		cmovge ebx, rets[0];
+		jnge cmov0;
+		mov ebx, rets[0];
+		//cmovge ebx, rets[0];
+cmov0:
 		call EndHook;
 		mov  eax, ebx;
 		//pop  ecx;
@@ -581,8 +596,14 @@ static void __declspec(naked) gmouse_handle_event_hook() {
 		mov  ecx, 1;
 		xor  eax, eax;
 		cmp  dword ptr ds:[targetRet], -1;
-		cmove  ecx, eax;       // if true - set invalid
-		cmovne edx, targetRet; // if false - set override object
+		jne cmov0;
+		mov  ecx, eax;       // if true - set invalid
+		//cmove  ecx, eax;       // if true - set invalid
+cmov0:
+		je cmov1;
+		mov edx, targetRet; // if false - set override object
+		//cmovne edx, targetRet; // if false - set override object
+cmov1:
 default:
 		call TargetObjectHook;
 		mov  edx, eax;
