@@ -38,7 +38,7 @@ You can arbitrarily get the value of any argument using the `sfall_func1("get_sf
 #### `array get_sfall_args()`
 Returns all hook arguments as a new temp array.
 
-#### `void set_sfall_return(int value)`
+#### `void set_sfall_return(any value)`
 Used to return the new values from the script. Each time it's called it sets the next value, or if you've already set all return values it does nothing.
 
 #### `void set_sfall_arg(int argNum, int value)`
@@ -133,7 +133,7 @@ Critter ret2 - Override the target of the attack
 
 #### `HOOK_CALCAPCOST (hs_calcapcost.int)`
 
-Runs whenever Fallout is calculating the AP cost of using the weapon (or unarmed attack). Doesn't run for using other item types or moving.\
+Runs whenever Fallout calculates the AP cost of using an active item in hand (or unarmed attack). Doesn't run for moving.\
 Note that the first time a game is loaded, this script doesn't run before the initial interface is drawn, so if the script effects the AP cost of whatever is in the player's hands at the time the wrong AP cost will be shown. It will be fixed the next time the interface is redrawn.\
 You can get the weapon object by checking item slot based on attack type (`ATKTYPE_LWEP1`, `ATKTYPE_LWEP2`, etc) and then calling `critter_inven_obj`.
 
@@ -597,7 +597,7 @@ int     arg0 - event type:
                -1 - combat ends abruptly (by script or by pressing Enter during PC turn)
                -2 - combat ends normally (hook always runs at the end of combat)
 Critter arg1 - critter doing the turn
-bool    arg2 - 1 at the start/end of the player's turn after loading a game saved in combat mode, 0 otherwise
+int     arg2 - 1 at the start/end of the player's turn after loading a game saved in combat mode, 0 otherwise
 
 int     ret0 - pass 1 at the start of turn to skip the turn, pass -1 at the end of turn to force end of combat
 ```
