@@ -267,6 +267,7 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)lib\x86\</AdditionalLibraryDirectories>
       <AdditionalOptions>/EMITPOGOPHASEINFO %(AdditionalOptions)</AdditionalOptions>
       <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>"$(SolutionDir)patch.bat" "$(SolutionDir)$(Configuration)\$(TargetFileName)"</Command>

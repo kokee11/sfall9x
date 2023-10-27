@@ -18,6 +18,7 @@ static PSLIST_ENTRY WINAPI __InterlockedFlushSList(PSLIST_HEADER);
 static BOOL WINAPI __MoveFileExW(LPCWSTR, LPCWSTR, DWORD);
 static BOOL WINAPI __MoveFileExA(LPCSTR, LPCSTR, DWORD);
 static BOOL WINAPI __IsProcessorFeaturePresent(DWORD);
+static void WINAPI __DeleteCriticalSection(LPCRITICAL_SECTION);
 
 typedef VOID(WINAPI *PFN_INITIALIZESLISTHEAD)(PSLIST_HEADER);
 typedef BOOL(WINAPI *PFN_GETMODULEHANDLEEXW)(DWORD, LPCWSTR, HMODULE*);
@@ -29,6 +30,7 @@ typedef BOOL(WINAPI *PFN_MOVEFILEEXW)(LPCWSTR, LPCWSTR, DWORD);
 typedef BOOL(WINAPI *PFN_MOVEFILEEXA)(LPCSTR, LPCSTR, DWORD);
 typedef BOOL(WINAPI *PFN_INITIALIZECRITICALSECTIONANDSPINCOUNT)(LPCRITICAL_SECTION, DWORD);
 typedef BOOL(WINAPI* PFN_ISPROCESSORFEATUREPRESENT)(DWORD);
+typedef void(WINAPI* PFN_DELETECRITICALSECTION)(LPCRITICAL_SECTION);
 
 static PFN_INITIALIZESLISTHEAD pfnInitializeSListHead = nullptr;
 static PFN_GETMODULEHANDLEEXW pfnGetModuleHandleExW = nullptr;
@@ -40,6 +42,30 @@ static PFN_MOVEFILEEXW pfnMoveFileExW = nullptr;
 static PFN_MOVEFILEEXA pfnMoveFileExA = nullptr;
 static PFN_INITIALIZECRITICALSECTIONANDSPINCOUNT pfnInitializeCriticalSectionAndSpinCount = nullptr;
 static PFN_ISPROCESSORFEATUREPRESENT pfnIsProcessorFeaturePresent = nullptr;
+static PFN_DELETECRITICALSECTION pfnDeleteCriticalSection = nullptr;
+static PFN_DELETECRITICALSECTION pfnOrigDeleteCriticalSection = nullptr;
+
+extern "C" void WINAPI volatile
+LibDeleteCriticalSection(LPCRITICAL_SECTION lpCriticalSection)
+{
+
+	if (!pfnDeleteCriticalSection)
+	{
+		HMODULE hKernel32 = GetModuleHandleA("kernel32");
+		pfnDeleteCriticalSection = reinterpret_cast<PFN_DELETECRITICALSECTION>(GetProcAddress(hKernel32, "DeleteCriticalSection"));
+		pfnOrigDeleteCriticalSection = pfnDeleteCriticalSection;
+
+		// OVERRIDE
+		if (wv <= WINVER_ME)
+			pfnDeleteCriticalSection = __DeleteCriticalSection;
+	}
+
+	// MessageBoxA(NULL, __FUNCTION__" called!", "", MB_OK);
+
+	ExitProcess(0);
+	return pfnDeleteCriticalSection(lpCriticalSection);
+	
+}
 
 extern "C" BOOL WINAPI
 LibIsProcessorFeaturePresent(DWORD ProcessorFeature)
@@ -90,6 +116,7 @@ LibMoveFileExW(LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName, DWORD dwFlags)
 		HMODULE hKernel32 = GetModuleHandleA("kernel32");
 		pfnMoveFileExW = reinterpret_cast<PFN_MOVEFILEEXW>(GetProcAddress(hKernel32, "MoveFileExW"));
 
+		// OVERRIDE
 		if (wv <= WINVER_ME)
 			pfnMoveFileExW = __MoveFileExW;
 	}
@@ -471,4 +498,10 @@ static BOOL WINAPI
 __IsProcessorFeaturePresent(DWORD ProcessorFeature)
 {
 	return FALSE;
+}
+
+static void WINAPI
+__DeleteCriticalSection(LPCRITICAL_SECTION lpCriticalSection)
+{
+	return pfnOrigDeleteCriticalSection(lpCriticalSection);
 }
