@@ -136,9 +136,10 @@ void SafeMemSet(DWORD addr, BYTE val, size_t len) {
 void BlockCall(DWORD addr) {
 	DWORD oldProtect;
 
-	VirtualProtect((void*)addr, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
-	*((DWORD*)addr) = 0x00441F0F; // long NOP (0F1F4400-XX)
-	VirtualProtect((void*)addr, 4, oldProtect, &oldProtect);
+	VirtualProtect((void*)addr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
+	*((DWORD*)addr) = 0x90909090;
+	*((BYTE*)(addr + 4)) = 0x90;
+	VirtualProtect((void*)addr, 5, oldProtect, &oldProtect);
 
 	CheckConflict(addr, 5);
 }
