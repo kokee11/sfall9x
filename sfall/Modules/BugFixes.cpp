@@ -1900,6 +1900,17 @@ static void __declspec(naked) ai_best_weapon_hook() {
 	}
 }
 
+static void __declspec(naked) ai_search_inven_armor_hook() {
+	__asm {
+		call fo::funcoffs::item_ar_dt_;
+		cmp  ebx, DMG_electrical;
+		jne  skip;
+		inc  ebx; // skip DMG_emp later
+skip:
+		retn;
+	}
+}
+
 static void __declspec(naked) wmSetupRandomEncounter_hook() {
 	__asm {
 		push eax;                  // text 2
@@ -3717,6 +3728,9 @@ void BugFixes::init() {
 		SafeWriteBatch<BYTE>(0x15, {0x42955E, 0x4296E7}); // lea eax, [edx*4] > lea eax, [edx]
 	}
 
+	// Change the calculation of the armor score to exclude the EMP stats (not strictly a bug fix)
+	HookCalls(ai_search_inven_armor_hook, {0x429ACC, 0x429B17});
+
 	// Fix for the encounter description being displayed in two lines instead of one
 	SafeWrite32(0x4C1011, 0x9090C789); // mov edi, eax;
 	SafeWrite8(0x4C1015, CodeType::Nop);
@@ -3743,6 +3757,10 @@ void BugFixes::init() {
 	if (IniReader::GetConfigInt("Misc", "StartGDialogFix", 0)) {
 		dlogr("Applying start_gdialog argument fix.", DL_FIX);
 		MakeCall(0x456F08, op_start_gdialog_hack);
+	} else {
+		// Fix crash when calling start_gdialog outside of the talk_p_proc procedure for talking heads
+		__int64 data = 0x900C24448B; // mov eax, [esp + 0x3C - 0x30] (fix dialog_target)
+		SafeWriteBytes(0x456F08, (BYTE*)&data, 5);
 	}
 
 	// Fix for Heave Ho! perk increasing Strength stat above 10 when determining the maximum range of thrown weapons
